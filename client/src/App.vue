@@ -3,9 +3,9 @@
     <h1>{{ data.msg }}</h1>
     <h2> Socket connected: {{ data.connected }}</h2>
     <h2 v-if="data.err">Socket error: {{ data.err }}</h2>
-    <!--<h3 v-if="data.news"> News: {{ data.news }}</h3>-->
-    <!--<h3 v-if="!data.news">No news yet from other clients!</h3>-->
-    <canvas id="dataPoints" ref="dataPoints" width="200" height="200"></canvas>
+    <div id="chart-container" align="center">
+      <canvas id="dataPoints" ref="dataPoints"></canvas>
+    </div>
   </div>
 </template>
 
@@ -16,15 +16,14 @@ const Chart = require('chart.js');
 const data = { 
   msg: 'Waiting for messages from server...',
   err: undefined,
-  connected: false,
-  news: undefined
+  connected: false
 };
 
 let lineData = {
   datasets: [{
     label: "Received data",
     data: [],
-    pointRadius: 10,
+    pointRadius: 5,
     pointBackgroundColor: "#0000ff"
   }]};
 
@@ -35,7 +34,9 @@ function drawChart(el) {
   return new Chart(ctx, {
     type: 'scatter',
     data: lineData,
-    options: {}
+    options: {
+      maintainAspectRatio: false
+    }
   });
 }
 
@@ -99,6 +100,14 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+#chart-container {
+  width: 60%;
+  height: 500px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 h1, h2 {

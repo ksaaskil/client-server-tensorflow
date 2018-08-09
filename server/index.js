@@ -1,3 +1,4 @@
+const randomNormal = require('random-normal');
 const server = require('http').createServer()
 const io = require('socket.io')(server)
 
@@ -5,12 +6,12 @@ const handleMessage = (clientId, message) => {
   console.log(`Client ${clientId} responded it received message: ${message}`);
 }
 
+const noiseStd = 0.1;
+
 const sendDataPointsAtInterval = () => {
-  let x = Math.random
-  let y = 1;
   const pushMessage = () => {
-    x = Math.random();
-    y = Math.random();
+    const x = randomNormal();
+    const y = x + randomNormal() * noiseStd;
     io.emit('data point', { x, y });
   }
   return setInterval(pushMessage, 1000);
