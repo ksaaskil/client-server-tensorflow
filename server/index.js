@@ -5,34 +5,36 @@ const handleMessage = (clientId, message) => {
   console.log(`Client ${clientId} responded it received message: ${message}`);
 }
 
-const setIntervalMessages = (client) => {
-  let number = 1;
+const sendDataPointsAtInterval = () => {
+  let x = Math.random
+  let y = 1;
   const pushMessage = () => {
-    client.emit('message', `Message from server #${number}`);
-    number++;
+    x = Math.random();
+    y = Math.random();
+    io.emit('data point', { x, y });
   }
   return setInterval(pushMessage, 1000);
 }
 
-function onConnection(client) {
-  client.on('messageReceived', (message) => handleMessage(client.id, message))
+function onNewConnection(socket) {
+  socket.on('messageReceived', (message) => handleMessage(socket.id, message))
 
-  client.on('disconnect', handleDisconnect);
+  socket.on('disconnect', handleDisconnect);
 
-  client.on('error', function (err) {
-    console.log('received error from client:', client.id)
+  socket.on('error', function (err) {
+    console.log('received error from client:', socket.id)
     console.log(err)
   })
 
-  const clearIv = setIntervalMessages(client);
-
   function handleDisconnect() {
-    console.log(`Client disconnected, id: ${client.id}`);
-    clearInterval(clearIv);
+    console.log(`Client disconnected, id: ${socket.id}`);
   }
+
 }
 
-io.on('connection', onConnection);
+const unsubscribeDataPoints = sendDataPointsAtInterval();
+
+io.on('connection', onNewConnection);
 
 server.listen(3000, function (err) {
   if (err) throw err
