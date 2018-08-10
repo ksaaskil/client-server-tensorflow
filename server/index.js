@@ -6,7 +6,7 @@ const handleMessage = (clientId, message) => {
   console.log(`Client ${clientId} responded it received message: ${message}`);
 };
 
-const noiseStd = 0.1;
+const noiseStd = 1;
 
 const sendDataPointsAtInterval = () => {
   const pushMessage = () => {
@@ -14,7 +14,7 @@ const sendDataPointsAtInterval = () => {
     const y = x + randomNormal() * noiseStd;
     io.emit('data point', { x, y });
   };
-  return setInterval(pushMessage, 1000);
+  return setInterval(pushMessage, 100);
 };
 
 function onNewConnection(socket) {
