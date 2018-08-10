@@ -15,6 +15,7 @@
 <script>
 const Chart = require('chart.js');
 const { initializeSocket } = require('./socket');
+const { buildModel } = require('./model');
 
 const data = {
   msg: 'Waiting for messages from server...',
@@ -24,20 +25,53 @@ const data = {
 
 function drawChart(el) {
   const ctx = el.getContext('2d');
-  const lineData = {
-    datasets: [{
-      label: 'Received data',
-      data: [],
-      pointRadius: 5,
-      pointBackgroundColor: '#0000ff'
-    }]
+
+  const pointDataSet = {
+    label: 'Received data',
+    data: [],
+    pointRadius: 5,
+    pointBackgroundColor: '#0000ff',
+    showLine: false,
+    xAxisID: 'x-axis',
+    yAxisID: 'y-axis'
   };
-  return new Chart(ctx, {
-    type: 'scatter',
-    data: lineData,
-    options: {
-      maintainAspectRatio: false
+
+  const predictionDataSet = {
+    label: 'Predicted data',
+    data: [],
+    fill: false,
+    borderColor: '#ff0000',
+    xAxisID: 'x-axis',
+    yAxisID: 'y-axis'
+  };
+
+  const lineData = {
+    datasets: [
+      pointDataSet,
+      predictionDataSet
+    ]
+  };
+
+  const options = {
+    maintainAspectRatio: false,
+    scales: {
+      xAxes: [{
+        id: 'x-axis',
+        display: true,
+        type: 'linear'
+      }],
+      yAxes: [{
+        id: 'y-axis',
+        display: true,
+        type: 'linear',
+      }],
     }
+  };
+
+  return new Chart(ctx, {
+    type: 'line',
+    data: lineData,
+    options
   });
 }
 
@@ -56,6 +90,8 @@ const onDisconnect = () => {
 };
 
 let chart;
+
+const model = buildModel();
 
 export default {
   name: 'App',
@@ -77,13 +113,25 @@ export default {
     this.chart = drawChart(this.$refs.chartCanvas);
   },
   methods: {
-    onDataPointReceived(dataPoint) {
+    async onDataPointReceived(dataPoint) {
       console.log(`Received data point ${JSON.stringify(dataPoint)}`);
       const { x, y } = dataPoint;
       this.addData(x, y);
+      const { a, b } = model.fit({ x, y });
+      // console.log(`a: ${a}, b: ${b}`);
+      this.updatePrediction(a, b);
     },
     addData(x, y) {
       this.chart.data.datasets[0].data.push({ x, y });
+      this.chart.update();
+    },
+    updatePrediction(a, b) {
+      const xBound = 5;
+      const x1 = -xBound;
+      const x2 = xBound;
+      const toY = x => a * x + b;
+      this.chart.data.datasets[1].data = [{ x: x1, y: toY(x1) },
+        { x: x2, y: toY(x2) }];
       this.chart.update();
     }
   }

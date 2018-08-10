@@ -7,5 +7,8 @@ module.exports = {
       "comma-dangle": "off",
       "no-console": "off",
       "import/prefer-default-export": "off"
+    },
+    "parserOptions": {
+        "ecmaVersion": 8
     }
 };
