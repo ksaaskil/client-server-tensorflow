@@ -22,8 +22,6 @@ const data = {
   connected: false
 };
 
-Chart.defaults.global.animation.duration = 0;
-
 function drawChart(el) {
   const ctx = el.getContext('2d');
   const lineData = {
