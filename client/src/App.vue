@@ -13,8 +13,8 @@
 </template>
 
 <script>
-const io = require('socket.io-client');
 const Chart = require('chart.js');
+const { initializeSocket } = require('./socket');
 
 const data = {
   msg: 'Waiting for messages from server...',
@@ -22,19 +22,18 @@ const data = {
   connected: false
 };
 
-const lineData = {
-  datasets: [{
-    label: 'Received data',
-    data: [],
-    pointRadius: 5,
-    pointBackgroundColor: '#0000ff'
-  }]
-};
-
 Chart.defaults.global.animation.duration = 0;
 
 function drawChart(el) {
   const ctx = el.getContext('2d');
+  const lineData = {
+    datasets: [{
+      label: 'Received data',
+      data: [],
+      pointRadius: 5,
+      pointBackgroundColor: '#0000ff'
+    }]
+  };
   return new Chart(ctx, {
     type: 'scatter',
     data: lineData,
@@ -44,26 +43,19 @@ function drawChart(el) {
   });
 }
 
-function initializeSocket(onDataPointReceived) {
-  const socket = io.connect('http://localhost:3000', { forceNew: true });
+const onConnect = () => {
+  data.connected = true;
+};
 
-  socket.on('connect', () => {
-    data.connected = true;
-  });
+const onError = (err) => {
+  console.err('Received socket error', err);
+  data.err = err.message;
+};
 
-  socket.on('error', (err) => {
-    console.err('Received socket error', err);
-    data.err = err.message;
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Socket disconnected');
-    socket.close();
-    data.connected = false;
-  });
-
-  socket.on('data point', onDataPointReceived);
-}
+const onDisconnect = () => {
+  console.log('Socket disconnected');
+  data.connected = false;
+};
 
 let chart;
 
@@ -76,7 +68,12 @@ export default {
     };
   },
   created() {
-    initializeSocket(this.onDataPointReceived);
+    initializeSocket({
+      onDataPoint: this.onDataPointReceived,
+      onConnect,
+      onDisconnect,
+      onError
+    });
   },
   mounted() {
     this.chart = drawChart(this.$refs.chartCanvas);
