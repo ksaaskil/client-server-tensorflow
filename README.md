@@ -1,18 +1,18 @@
-# Client-server websocket example
+# Example of online training with Tensorflow.js
 
 <p align="center">
 <img src="./screenshot.png" alt="drawing" />
 </p>
 
-## Running instructions
+## Instructions
 
-Client:
+### Client
 
 ```sh
 cd client && npm install && npm run dev
 ```
 
-Server:
+### Server
 
 ```sh
 cd server && npm install && npm start
