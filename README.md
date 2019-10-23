@@ -1,7 +1,7 @@
 # Client-server websocket example
 
 <p align="center">
-<img src="./screenshot.png" alt="drawing" width="200"/>
+<img src="./screenshot.png" alt="drawing" />
 </p>
 
 ## Running instructions
